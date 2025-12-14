@@ -1,0 +1,42 @@
+﻿@page "/Crear-Categorie"
+
+@using PFakeStoreApiMovil.Models
+@using PFakeStoreApiMovil.Services
+
+@inject ICategoriaService service
+
+
+<h4>Crear Nueva Categoría</h4>
+<form @onsubmit="CreateCategoria">
+    <div class="form-group">
+        <label for="nombre">Nombre:</label>
+        <input id="nombre" type="text" class="form-control" @bind="nombreCategoria" />
+    </div>
+    <div class="form-group">
+        <label for="imagen">Imagen:</label>
+        <input id="imagen" type="text" class="form-control" @bind="imagenCategoria" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-outline-primary">Crear Categoría</button>
+</form>
+
+
+@code {
+    private string nombreCategoria = "";
+    private string imagenCategoria = "";
+
+    private async Task CreateCategoria()
+    {
+        var nuevaCategoria = new Categoria
+            {
+                name = nombreCategoria,
+                image = imagenCategoria
+            };
+
+        await service.CreateCategory(nuevaCategoria);
+
+        nombreCategoria = ""; // Establecer en blanco
+        imagenCategoria = ""; // Establecer en blanco
+
+    }
+}

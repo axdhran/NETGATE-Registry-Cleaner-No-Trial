@@ -1,0 +1,108 @@
+﻿@page "/Categorie"
+
+@using PFakeStoreApiMovil.Models
+@using PFakeStoreApiMovil.Services
+
+@inject ICategoriaService service
+@inject NavigationManager NavigationManager
+
+
+<h3>Categorias</h3>
+<br />
+
+@if (categorias == null)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else
+{
+    @foreach (var categoria in categorias)
+    {
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">@categoria.name</h4>
+                <p class="card-text">ID: @categoria.id</p>
+                <p class="card-text">Fecha de Creacion: @categoria.creationAt</p>
+                <p class="card-text">Fecha de Actualizacion: @categoria.updatedAt</p>
+                <img src="@categoria.image" alt="@categoria.name" class="img-fluid" />
+                <br/>
+            </div>
+            <div class="d-grid gap-2 col-6 mx-auto">
+                <p><strong>¿Estas seguro de eliminar esta categoria?</strong></p>
+                <button class="btn btn-outline-danger" @onclick="() => EliminarCategoria(categoria.id)">Eliminar</button>
+                <br />
+               <button class="btn btn-outline-primary" @onclick="MostrarDialogo">Actualizar</button> 
+            </div>
+            <br/>
+        </div>
+        <br />
+
+        @if (mostrarDialogo)
+        {
+            <div class="dialogo-fondo">
+                <div class="dialogo">
+                    <h4>Actualizar Categoria</h4>
+                    <input type="text" placeholder="Introduce el nuevo nombre..." @bind="newname" />
+                    <button class="btn btn-outline-warning" @onclick="() => Aceptar(categoria.id)">Aceptar</button>
+                    <button class="btn btn-outline-danger" @onclick="Cancelar">Cancelar</button>
+                </div>
+            </div>
+            <br/>
+        }
+
+    }
+}
+
+
+
+@code {
+
+    private List<Categoria> categorias;
+
+    private bool actualizado = false; 
+
+    private bool eliminado = false;
+
+    private bool mostrarDialogo = false;
+
+    private string newname;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categorias = await service.GetCategories();
+    }
+
+    private async Task EliminarCategoria(int id)
+    {
+        eliminado = await service.EliminarCategoria(id);
+
+        if (eliminado)
+        {
+            categorias = await service.GetCategories();
+            NavigationManager.NavigateTo("/Categorie", true);
+        }
+    }
+
+    private void MostrarDialogo()
+    {
+        mostrarDialogo = true;
+    }
+
+    private async void Aceptar(int id)
+    {
+        actualizado = await service.UpdateCategory(id, newname);
+       
+            categorias = await service.GetCategories();
+            NavigationManager.NavigateTo("/Categorie", true);
+
+        mostrarDialogo = false;
+
+    }
+
+    private void Cancelar()
+    {
+        mostrarDialogo = false;
+    }
+}
